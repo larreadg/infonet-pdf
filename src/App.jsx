@@ -9,6 +9,7 @@ function App() {
 
   const [boleta, setBoleta] = useState(0);
   const [monto, setMonto] = useState(0);
+  const [servicio, setServicio] = useState('');
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -17,6 +18,8 @@ function App() {
       setBoleta(value);
     } else if (name === 'monto') {
       setMonto(value);
+    } else if (name === 'servicio') {
+      setServicio(value);
     }
   };
 
@@ -34,6 +37,7 @@ function App() {
     // Obtén la primera página del documento
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
+    const fontSize = 9;
   
     // Define una fuente
     const font = await pdfDoc.embedFont(StandardFonts.CourierBold);
@@ -41,8 +45,8 @@ function App() {
     // Escribe la fecha
     firstPage.drawText(currentDateTime.format('DD/MM/YYYY'), {
       x: 48,
-      y: 131,
-      size: 10,
+      y: 175,
+      size: fontSize,
       font,
       color: rgb(0, 0, 0),
     });
@@ -50,8 +54,8 @@ function App() {
     // Escribe la hora
     firstPage.drawText(currentDateTime.format('HH:mm'), {
       x: 42,
-      y: 104,
-      size: 10,
+      y: 148,
+      size: fontSize,
       font,
       color: rgb(0, 0, 0),
     });
@@ -59,20 +63,73 @@ function App() {
     // Escribe nro de boleta
     firstPage.drawText(boleta, {
       x: 55,
-      y: 77,
-      size: 10,
+      y: 120,
+      size: fontSize,
       font,
       color: rgb(0, 0, 0),
     });
     
     // Escribe el monto
     firstPage.drawText(`${monto}Gs.`, {
-      x: 67,
-      y: 50,
-      size: 10,
+      x: 48,
+      y: 93,
+      size: fontSize,
       font,
       color: rgb(0, 0, 0),
     });
+    
+    // Define el ancho del PDF y la posición inicial en puntos
+    const pdfWidth = 164; // Aproximadamente 58mm
+    const initialX = 67;
+
+    // Calcula el ancho máximo para el texto
+    const maxWidth = pdfWidth - initialX;
+
+    // Calcula el ancho del texto
+    
+    const textWidth = font.widthOfTextAtSize(servicio, fontSize);
+
+    if (textWidth > maxWidth) {
+      // Si el texto es demasiado largo, divídelo en palabras
+      const words = servicio.split(' ');
+      let lines = [''];
+      let i = 0;
+
+      // Añade palabras a las líneas, asegurándote de que no excedan el ancho máximo
+      words.forEach(word => {
+        const potentialLine = lines[i] + ' ' + word;
+        const potentialLineWidth = font.widthOfTextAtSize(potentialLine, fontSize);
+
+        if (potentialLineWidth > maxWidth) {
+          // Si la línea potencial es demasiado larga, comienza una nueva línea
+          i++;
+          lines[i] = word;
+        } else {
+          // Si no, añade la palabra a la línea actual
+          lines[i] = potentialLine;
+        }
+      });
+
+      // Escribe cada línea en el PDF
+      lines.forEach((line, index) => {
+        firstPage.drawText(line.trim(), {
+          x: index == 0 ? initialX : 5,
+          y: 65 - index * 15, // Ajusta la posición y para cada línea
+          size: fontSize,
+          font,
+          color: rgb(0, 0, 0),
+        });
+      });
+    } else {
+      // Si el texto cabe en una línea, escríbelo normalmente
+      firstPage.drawText(servicio, {
+        x: initialX,
+        y: 65,
+        size: fontSize,
+        font,
+        color: rgb(0, 0, 0),
+      });
+    }
   
     // Guarda el documento modificado
     const modifiedPdfBytes = await pdfDoc.save();
@@ -95,7 +152,11 @@ function App() {
             <label>Monto Gs.</label>
             <input type="number" name="monto" value={monto} onChange={handleInputChange} />
           </section>
-          <input className={`infonet_form_submit ${boleta == 0 || monto == 0 ? 'disabled' : ''}`} type="submit" value="Generar PDF" disabled={boleta == 0 || monto == 0 }/>
+          <section className='infonet_form_input_group'>
+            <label>Servicio</label>
+            <input type="text" name="servicio" placeholder='Giro Tigo Money' value={servicio} onChange={handleInputChange} />
+          </section>
+          <input className={`infonet_form_submit ${boleta == 0 || monto == 0 || servicio == '' ? 'disabled' : ''}`} type="submit" value="Generar PDF" disabled={boleta == 0 || monto == 0 || servicio == ''}/>
         </form>
       </section>
 
