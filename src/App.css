@@ -1,0 +1,59 @@
+:root {
+    --primary-color: #008374;
+    --secondary-color: #fff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.infonet {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.infonet_title {
+    font-family: 'Trebuchet MS', sans-serif;
+    margin-bottom: 2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.infonet_form {
+    display: flex;
+    flex-direction: column;
+}
+
+.infonet_form_input_group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+.infonet_form_input_group label {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.infonet_form_input_group input {
+    border: 1px solid var(--primary-color);
+    font-family: 'Trebuchet MS', sans-serif;
+    padding: 0.5rem 1rem;
+}
+
+.infonet_form_submit {
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    font-size: 1rem;
+    font-family: 'Trebuchet MS', sans-serif;
+    margin-top: 2rem;
+    padding: 0.5rem 1rem;
+}
+
+.disabled {
+    opacity: 0.5;
+}
